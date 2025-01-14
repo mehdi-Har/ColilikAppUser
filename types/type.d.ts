@@ -9,7 +9,12 @@ declare interface Driver {
   car_seats: number;
   rating: number;
 }
-
+declare interface Order {
+  id: string;
+  destination: string;
+  status: string;
+  date: Date;
+}
 declare interface MarkerData {
   latitude: number;
   longitude: number;
