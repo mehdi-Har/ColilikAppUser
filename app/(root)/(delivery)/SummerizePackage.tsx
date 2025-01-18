@@ -57,16 +57,18 @@ const SummarizePackage = () => {
           <Text className="text-xl font-semibold mb-4">Delivery Details</Text>
           <View className="flex-row items-center mb-3">
             <Image source={icons.Currentlockation} className="w-6 h-6 mr-1" />
-            <Text className="text-lg text-gray-800">
+            <Text className="text-lg text-gray-800 max-w-xs truncate">
               Pickup Location: {pickupLocation || "Not specified"}
             </Text>
           </View>
+
           <View className="flex-row items-center mb-3">
             <Image source={icons.Location} className="w-6 h-6 mr-1" />
-            <Text className="text-lg text-gray-800">
+            <Text className="text-lg text-gray-800 max-w-xs truncate">
               Destination Location: {destinationLocation || "Not specified"}
             </Text>
           </View>
+
           <View className="flex-row items-center mb-3">
             <Image source={icons.Calendar} className="w-6 h-6 mr-3" />
             <Text className="text-lg text-gray-800">Date: {scheduleDate}</Text>
@@ -77,7 +79,6 @@ const SummarizePackage = () => {
           </View>
         </View>
 
-        {/* Sender Details */}
         <View className="mb-8">
           <Text className="text-xl font-semibold mb-4">Sender</Text>
           <View className="flex-row items-center mb-3">
@@ -115,7 +116,7 @@ const SummarizePackage = () => {
 
       <View className="p-4">
         <TouchableOpacity
-          className="bg-indigo-600 py-4 rounded-full items-center"
+          className="bg-blue-700 py-4 rounded-full items-center"
           onPress={handleNavigation}
         >
           <Text className="text-white text-xl font-bold">Confirm Package</Text>

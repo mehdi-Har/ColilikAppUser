@@ -45,6 +45,13 @@ export default function DeliveryLayout() {
           headerShown: false,
         }}
       />
+      <Stack.Screen
+        name="SummerizePackage"
+        options={{
+          title: "continue",
+          headerShown: false,
+        }}
+      />
     </Stack>
   );
 }

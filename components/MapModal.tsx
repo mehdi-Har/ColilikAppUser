@@ -99,6 +99,12 @@ const MapModal: React.FC<MapModalProps> = ({
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color="#0000ff" />
           <Text>Fetching your location...</Text>
+          <TouchableOpacity
+            style={[styles.button, styles.cancelButton, { marginTop: 20 }]}
+            onPress={onClose}
+          >
+            <Text style={styles.cancelButtonText}>Cancel</Text>
+          </TouchableOpacity>
         </View>
       </Modal>
     );
@@ -126,14 +132,17 @@ const MapModal: React.FC<MapModalProps> = ({
           )}
         </MapView>
         <View style={styles.actionContainer}>
-          <TouchableOpacity style={styles.button} onPress={handleValidate}>
-            <Text style={styles.buttonText}>Confirm</Text>
+          <TouchableOpacity
+            style={[styles.button, styles.confirmButton]}
+            onPress={handleValidate}
+          >
+            <Text style={styles.confirmButtonText}>Confirm</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={[styles.button, styles.cancelButton]}
             onPress={onClose}
           >
-            <Text style={styles.buttonText}>Cancel</Text>
+            <Text style={styles.cancelButtonText}>Cancel</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -143,25 +152,45 @@ const MapModal: React.FC<MapModalProps> = ({
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  map: { width, height: height * 0.8 },
-  loadingContainer: { flex: 1, justifyContent: "center", alignItems: "center" },
+  map: { flex: 1 },
   actionContainer: {
     flexDirection: "row",
     justifyContent: "space-around",
+    alignItems: "center",
     padding: 10,
-    backgroundColor: "#f9f9f9",
+    backgroundColor: "#ffffff",
+    borderTopWidth: 1,
+    borderTopColor: "#ddd",
   },
   button: {
-    padding: 10,
-    backgroundColor: "#4CAF50",
+    paddingVertical: 10,
+    paddingHorizontal: 20,
     borderRadius: 5,
+    borderWidth: 2,
+  },
+  confirmButton: {
+    backgroundColor: "#007bff", // Blue background
+    borderColor: "#007bff", // Blue border
+  },
+  confirmButtonText: {
+    color: "white", // White text
+    fontSize: 16,
+    fontWeight: "bold",
   },
   cancelButton: {
-    backgroundColor: "#f44336",
+    backgroundColor: "transparent",
+    borderColor: "#007bff", // Blue border
   },
-  buttonText: {
-    color: "white",
+  cancelButtonText: {
+    color: "#007bff", // Blue text
     fontSize: 16,
+    fontWeight: "bold",
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#fff",
   },
 });
 

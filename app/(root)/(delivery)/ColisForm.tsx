@@ -4,7 +4,7 @@ import { useLocalSearchParams } from "expo-router";
 
 const ColisForm = () => {
   const { imageData } = useLocalSearchParams();
-  const parsedImageData = JSON.parse(imageData as string); // Parse the incoming data
+  const parsedImageData = JSON.parse(imageData as string);
 
   return (
     <View className="flex-1 bg-white justify-center items-center p-5">

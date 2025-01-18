@@ -59,7 +59,7 @@ const UploadImage = () => {
     }
   };
 
-  const navigateToDummy = () => {
+  const navigateToPackageInfo = () => {
     router.push({
       pathname: "/PackageInfo",
       params: {
@@ -71,7 +71,10 @@ const UploadImage = () => {
   return (
     <View className="flex-1 bg-gray-100 p-5">
       <View className="flex-row items-center mb-5">
-        <TouchableOpacity onPress={() => navigation.goBack()} className="mr-3">
+        <TouchableOpacity
+          onPress={() => router.push("/(root)/(delivery)/delivery")}
+          className="mr-3"
+        >
           <Image source={icons.backArrow} className="w-6 h-6" />
         </TouchableOpacity>
         <Text className="text-lg font-bold">Upload Image</Text>
@@ -113,7 +116,7 @@ const UploadImage = () => {
         {imageUri && (
           <TouchableOpacity
             className="bg-blue-500 px-6 py-3 rounded-lg w-4/5"
-            onPress={navigateToDummy}
+            onPress={navigateToPackageInfo}
           >
             <Text className="text-white font-bold text-lg">Validate</Text>
           </TouchableOpacity>

@@ -41,7 +41,9 @@
     "react": "18.3.1",
     "react-dom": "18.3.1",
     "react-native": "0.76.5",
+    "react-native-dotenv": "^3.4.11",
     "react-native-elements": "^3.4.3",
+    "react-native-fast-image": "^8.6.3",
     "react-native-geolocation-service": "^5.3.1",
     "react-native-gesture-handler": "~2.20.2",
     "react-native-maps": "1.18.0",
@@ -54,6 +56,7 @@
     "react-native-webview": "^13.12.5",
     "react-router": "^6.28.0",
     "tailwind-rn": "^4.2.0",
+    "tesseract.js": "^6.0.0",
     "uuid": "^11.0.3",
     "zustand": "^5.0.2"
   },

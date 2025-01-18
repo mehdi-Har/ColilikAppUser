@@ -14,7 +14,7 @@ import { icons } from "@/constants";
 import InputField from "@/components/InputField";
 import { router } from "expo-router";
 import { useSearchParams } from "expo-router/build/hooks";
-import { useNavigation } from "@react-navigation/native"; // Import useNavigation here inside the component
+import { useNavigation } from "@react-navigation/native";
 const PackageInfo = () => {
   const searchParams = useSearchParams();
   const imageUri = searchParams.get("imageUri");

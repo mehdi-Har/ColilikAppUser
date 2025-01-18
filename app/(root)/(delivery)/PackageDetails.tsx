@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useSearchParams } from "expo-router/build/hooks";
 import DateTimePicker from "@react-native-community/datetimepicker";
+import { useNavigation } from "@react-navigation/native";
 import {
   View,
   Text,
@@ -9,9 +10,11 @@ import {
   Modal,
   FlatList,
   Platform,
+  Image,
 } from "react-native";
 import { router } from "expo-router";
 import MapModal from "@/components/MapModal";
+import { icons } from "@/constants";
 
 const PackageDetails = () => {
   const searchParams = useSearchParams();
@@ -51,7 +54,7 @@ const PackageDetails = () => {
     setActiveLocationType(type);
     setMapModalVisible(true);
   };
-
+  const navigation = useNavigation();
   const handleSelectLocation = (
     address: string,
     coords: { latitude: number; longitude: number },
@@ -119,8 +122,12 @@ const PackageDetails = () => {
   };
   return (
     <View className="flex-1 bg-gray-100 p-4">
-      <Text className="text-xl font-bold mb-4">Package Information</Text>
-
+      <View className="flex-row items-center mb-5">
+        <TouchableOpacity onPress={() => navigation.goBack()} className="mr-3">
+          <Image source={icons.backArrow} className="w-6 h-6" />
+        </TouchableOpacity>
+        <Text className="text-xl font-bold">Package details</Text>
+      </View>
       <Text className="text-lg font-semibold mb-2">Location</Text>
       <View className="mb-4">
         <Text className="text-gray-600 mb-1">Pick-up Location</Text>

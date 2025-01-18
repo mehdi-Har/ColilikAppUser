@@ -1,18 +1,57 @@
-import React from "react";
-import { View, Text, TouchableOpacity, Image, ScrollView } from "react-native";
+import React, { useState } from "react";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  Image,
+  ScrollView,
+  Alert,
+} from "react-native";
 import { icons } from "@/constants";
 import { useRouter } from "expo-router";
+import { useSearchParams } from "expo-router/build/hooks";
 
 const Delivery = () => {
   const router = useRouter();
-
+  const searchParams = useSearchParams();
+  const userId = searchParams.get("userId");
+  const [isLoading, setIsLoading] = useState(false);
   interface Order {
     id: string;
     destination: string;
     status: string;
     date: Date;
   }
+  const handleNewOrder = async () => {
+    try {
+      setIsLoading(true);
 
+      const response = await fetch(
+        `http://192.168.236.192:8080/api/users/imageCIN/${userId}`,
+      );
+
+      if (!response.ok) {
+        Alert.alert("Error", "Failed to fetch data from the server");
+        return;
+      }
+
+      const contentType = response.headers.get("Content-Type");
+
+      if (contentType && contentType.startsWith("image/png")) {
+        const imageUrl = await response.url;
+        router.push("/NewOrder");
+      } else {
+        Alert.alert(
+          "Error",
+          "CIN does not exist for this user, set it up in the settings",
+        );
+      }
+    } catch (error) {
+      Alert.alert("Error", "An error occurred while checking CIN");
+    } finally {
+      setIsLoading(false);
+    }
+  };
   const pendingOrders: Order[] = [
     {
       id: "MAY23230024",
@@ -74,10 +113,9 @@ const Delivery = () => {
         </TouchableOpacity>
       </View>
 
-      {/* Create New Order Button */}
       <TouchableOpacity
         className="bg-blue-600 p-4 rounded-lg mt-5"
-        onPress={() => router.push("/NewOrder")}
+        onPress={handleNewOrder}
       >
         <Text className="text-white text-center text-lg font-bold">
           Create New Order
@@ -108,7 +146,6 @@ const Delivery = () => {
           </View>
         ))}
 
-        {/* Recent Delivery Section */}
         <Text className="mt-5 text-lg font-bold">Recent Delivery</Text>
         {recentOrders.map((order, index) => (
           <View
