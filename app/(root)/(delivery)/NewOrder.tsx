@@ -6,12 +6,13 @@ import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { RootStackParamList } from "@/types/navigation"; // Import the types
 import { icons } from "@/constants";
 import { router } from "expo-router";
-
+import { useSearchParams } from "expo-router/build/hooks";
 const UploadImage = () => {
   const [imageUri, setImageUri] = useState<string | null>(null);
   const [hasPermission, setHasPermission] = useState<boolean | null>(null);
   const [modalVisible, setModalVisible] = useState<boolean>(false);
-
+  const searchParams = useSearchParams();
+  const userId = searchParams.get("userId");
   const navigation =
     useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
@@ -64,6 +65,7 @@ const UploadImage = () => {
       pathname: "/PackageInfo",
       params: {
         imageUri: imageUri,
+        userId: userId,
       },
     });
   };

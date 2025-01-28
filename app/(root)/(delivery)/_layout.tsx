@@ -52,6 +52,20 @@ export default function DeliveryLayout() {
           headerShown: false,
         }}
       />
+      <Stack.Screen
+        name="DriverList"
+        options={{
+          title: "continue",
+          headerShown: false,
+        }}
+      />
+      <Stack.Screen
+        name="NewItem"
+        options={{
+          title: "continue",
+          headerShown: false,
+        }}
+      />
     </Stack>
   );
 }

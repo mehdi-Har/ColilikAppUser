@@ -10,6 +10,13 @@ export default function UserSettingsLayout() {
           headerShown: false,
         }}
       />
+      <Stack.Screen
+        name="BecomeDriver"
+        options={{
+          title: "becoming a driver",
+          headerShown: false,
+        }}
+      />
     </Stack>
   );
 }

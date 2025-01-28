@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -8,89 +8,73 @@ import {
   Alert,
 } from "react-native";
 import { icons } from "@/constants";
-import { useRouter } from "expo-router";
+import { router, useRouter } from "expo-router";
 import { useSearchParams } from "expo-router/build/hooks";
+import API_BASE_URL from "@/src/apiUrls/apiConfig";
+import { format } from "node:url";
+import { parseISO } from "date-fns";
+import { Property } from "csstype";
+import { Order } from "@/types/type";
 
 const Delivery = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const userId = searchParams.get("userId");
   const [isLoading, setIsLoading] = useState(false);
-  interface Order {
-    id: string;
-    destination: string;
-    status: string;
-    date: Date;
-  }
-  const handleNewOrder = async () => {
+  const [pendingOrders, setPendingOrders] = useState<Order[]>([]);
+  const [recentOrders, setRecentOrders] = useState<Order[]>([]);
+
+  const fetchOrders = async () => {
     try {
       setIsLoading(true);
-
       const response = await fetch(
-        `http://192.168.236.192:8080/api/users/imageCIN/${userId}`,
+        `${API_BASE_URL}/orders/ordersById/${userId}`,
       );
-
       if (!response.ok) {
-        Alert.alert("Error", "Failed to fetch data from the server");
-        return;
-      }
-
-      const contentType = response.headers.get("Content-Type");
-
-      if (contentType && contentType.startsWith("image/png")) {
-        const imageUrl = await response.url;
-        router.push("/NewOrder");
-      } else {
-        Alert.alert(
-          "Error",
-          "CIN does not exist for this user, set it up in the settings",
+        throw new Error(
+          `Failed to fetch orders. Status code: ${response.status}`,
         );
       }
-    } catch (error) {
-      Alert.alert("Error", "An error occurred while checking CIN");
+
+      const orders = await response.json();
+      const pending = orders.filter(
+        (order: Order) =>
+          order.status.toLowerCase() === "pending" ||
+          order.status.toLowerCase() === "transit",
+      );
+      const recent = orders.filter(
+        (order: Order) =>
+          order.status.toLowerCase() === "delivered" ||
+          order.status.toLowerCase() === "cancelled",
+      );
+
+      setPendingOrders(pending);
+      setRecentOrders(recent);
+    } catch (error: any) {
+      const errorMessage =
+        error.response?.data?.message ||
+        error.message ||
+        "An unknown error occurred";
+      Alert.alert("Error", `An error occurred: ${errorMessage}`);
+      console.error("Fetch error:", error);
     } finally {
       setIsLoading(false);
     }
   };
-  const pendingOrders: Order[] = [
-    {
-      id: "MAY23230024",
-      destination: "Destination",
-      status: "Transit",
-      date: new Date(),
-    },
-    {
-      id: "MAY23230024",
-      destination: "Destination",
-      status: "Pending",
-      date: new Date(),
-    },
-  ];
 
-  const recentOrders: Order[] = [
-    {
-      id: "MAY23230024",
-      destination: "Destination",
-      status: "Delivered",
-      date: new Date(),
-    },
-    {
-      id: "MAY23230024",
-      destination: "Destination",
-      status: "Cancelled",
-      date: new Date(),
-    },
-  ];
-
+  useEffect(() => {
+    console.log("Fetching orders for userId:", userId); // Debug log
+    fetchOrders();
+  }, [userId]);
   const getStatusStyle = (status: string) => {
     switch (status) {
-      case "Pending":
+      case "PENDING":
         return "bg-yellow-200 text-yellow-600";
-      case "Transit":
+      case "TRANSIT":
         return "bg-purple-200 text-purple-600";
-      case "Delivered":
+      case "DELIVERED":
         return "bg-green-200 text-green-600";
-      case "Cancelled":
+      case "CANCELLED":
         return "bg-red-200 text-red-600";
       default:
         return "bg-gray-200 text-gray-600";
@@ -99,7 +83,6 @@ const Delivery = () => {
 
   return (
     <View className="flex-1 bg-gray-100 p-5">
-      {/* Header */}
       <View className="flex-row justify-between items-center">
         <TouchableOpacity
           onPress={() => router.push("(tabs)/home")}
@@ -115,58 +98,90 @@ const Delivery = () => {
 
       <TouchableOpacity
         className="bg-blue-600 p-4 rounded-lg mt-5"
-        onPress={handleNewOrder}
+        onPress={() => {
+          router.push({
+            pathname: "/NewOrder",
+            params: {
+              userId: userId,
+            },
+          });
+        }}
       >
         <Text className="text-white text-center text-lg font-bold">
           Create New Order
         </Text>
       </TouchableOpacity>
 
-      {/* Pending Delivery Section */}
       <ScrollView className="mt-5">
         <Text className="text-lg font-bold">Pending Delivery</Text>
-        {pendingOrders.map((order, index) => (
-          <View
-            key={index}
-            className="flex-row bg-white p-4 mt-2 rounded-lg shadow-sm items-center"
-          >
-            <Image source={icons.box} className="w-10 h-10 mr-4" />
-            <View className="flex-1">
-              <Text className="text-gray-800 font-bold">{order.id}</Text>
-              <Text className="text-gray-600">{order.destination}</Text>
-              <Text className="text-gray-400 text-sm">
-                {order.date.toDateString()}
-              </Text>
-            </View>
+        {pendingOrders.length > 0 ? (
+          pendingOrders.map((order, index) => (
             <View
-              className={`px-3 py-1 rounded-full ${getStatusStyle(order.status)}`}
+              key={index}
+              className="flex-row bg-white p-4 mt-2 rounded-lg shadow-sm items-center"
             >
-              <Text className="text-sm font-bold">{order.status}</Text>
+              <Image source={icons.box} className="w-10 h-10 mr-4" />
+              <View className="flex-1">
+                <Text className="text-gray-800 font-bold">{order.orderId}</Text>
+                <Text className="text-gray-600">
+                  {order.announcement?.destination}
+                </Text>
+                <Text className="text-gray-400 text-sm">
+                  {order.announcement?.deliveryTime
+                    ? new Date(order.announcement.deliveryTime).toLocaleString() // e.g., 1/26/2025, 12:34 PM
+                    : "No delivery time available"}
+                </Text>
+              </View>
+              <View
+                className={`px-3 py-1 rounded-full ${getStatusStyle(order.status)}`}
+              >
+                <Text className="text-sm font-bold">{order.status}</Text>
+              </View>
             </View>
+          ))
+        ) : (
+          <View className="flex items-center justify-center mt-10">
+            <Image source={icons.box} className="w-20 h-20" />
+            <Text className="text-gray-500 text-center mt-2">
+              No pending deliveries to display.
+            </Text>
           </View>
-        ))}
+        )}
 
         <Text className="mt-5 text-lg font-bold">Recent Delivery</Text>
-        {recentOrders.map((order, index) => (
-          <View
-            key={index}
-            className="flex-row bg-white p-4 mt-2 rounded-lg shadow-sm items-center"
-          >
-            <Image source={icons.box} className="w-10 h-10 mr-4" />
-            <View className="flex-1">
-              <Text className="text-gray-800 font-bold">{order.id}</Text>
-              <Text className="text-gray-600">{order.destination}</Text>
-              <Text className="text-gray-400 text-sm">
-                {order.date.toDateString()}
-              </Text>
-            </View>
+        {recentOrders.length > 0 ? (
+          recentOrders.map((order, index) => (
             <View
-              className={`px-3 py-1 rounded-full ${getStatusStyle(order.status)}`}
+              key={index}
+              className="flex-row bg-white p-4 mt-2 rounded-lg shadow-sm items-center"
             >
-              <Text className="text-sm font-bold">{order.status}</Text>
+              <Image source={icons.box} className="w-10 h-10 mr-4" />
+              <View className="flex-1">
+                <Text className="text-gray-800 font-bold">{order.orderId}</Text>
+                <Text className="text-gray-600">
+                  {order.announcement?.destination}
+                </Text>
+                <Text className="text-gray-400 text-sm">
+                  {order.announcement?.deliveryTime
+                    ? new Date(order.announcement.deliveryTime).toLocaleString() // e.g., 1/26/2025, 12:34 PM
+                    : "No delivery time available"}
+                </Text>
+              </View>
+              <View
+                className={`px-3 py-1 rounded-full ${getStatusStyle(order.status)}`}
+              >
+                <Text className="text-sm font-bold">{order.status}</Text>
+              </View>
             </View>
+          ))
+        ) : (
+          <View className="flex items-center justify-center mt-10">
+            <Image source={icons.box} className="w-20 h-20" />
+            <Text className="text-gray-500 text-center mt-2">
+              No recent deliveries to display.
+            </Text>
           </View>
-        ))}
+        )}
       </ScrollView>
     </View>
   );

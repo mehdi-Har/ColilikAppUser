@@ -18,6 +18,7 @@ import { useNavigation } from "@react-navigation/native";
 const PackageInfo = () => {
   const searchParams = useSearchParams();
   const imageUri = searchParams.get("imageUri");
+  const userId = searchParams.get("userId");
 
   const [senderName, setSenderName] = useState("");
   const [senderPhone, setSenderPhone] = useState("");
@@ -46,6 +47,10 @@ const PackageInfo = () => {
       router.push({
         pathname: "/PackageDetails",
         params: {
+          senderName: senderName,
+          senderPhone: senderPhone,
+          altSenderPhone: altPhone,
+          userId: userId,
           imageUri: encodeURI(imageUri!),
         },
       });

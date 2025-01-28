@@ -9,18 +9,20 @@ import {
   Dimensions,
   Animated,
   Pressable,
+  Alert,
 } from "react-native";
 import { useRouter } from "expo-router";
 import { icons, images } from "@/constants";
 import { useUserContext } from "@/app/userContext";
-
+import API_BASE_URL from "../../../src/apiUrls/apiConfig";
 const Home = () => {
   const router = useRouter();
-  const { imageUri, setImageUri } = useUserContext(); // Use the context
+  const { imageUri, setImageUri } = useUserContext();
   const [user, setUser] = useState<string>("Guest");
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [isProfileVisible, setIsProfileVisible] = useState<boolean>(false);
+  const [rating, setRating] = useState<number | null>(0);
   const slideAnim = useRef(
     new Animated.Value(-Dimensions.get("window").width),
   ).current;
@@ -30,9 +32,7 @@ const Home = () => {
       setIsLoading(true);
       setError(null);
 
-      const response = await fetch(
-        `http://192.168.236.192:8080/api/users/${userId}`,
-      );
+      const response = await fetch(`${API_BASE_URL}/api/users/${userId}`);
 
       if (!response.ok) {
         throw new Error("Failed to fetch user data");
@@ -43,14 +43,17 @@ const Home = () => {
       if (data && data.userId) {
         setUser(data.fullName || "Guest");
         setImageUri(
-          `http://192.168.236.192:8080/api/users/imageProfil/${data.userId}?timestamp=${new Date().getTime()}`,
+          `${API_BASE_URL}/api/users/imageProfile/${data.userId}?timestamp=${new Date().getTime()}`,
         );
+        setRating(data.rating);
       } else {
         setUser("Guest");
         setImageUri(null);
+        setRating(0.0);
       }
     } catch (error) {
       setError(error.message || "Unable to fetch user data");
+      Alert.alert("cant fetch user data");
       setUser("Guest");
       setImageUri(null);
     } finally {
@@ -86,6 +89,9 @@ const Home = () => {
         userId: userId,
       },
     });
+  };
+  const navigateToBecomeDriver = () => {
+    router.push("/(root)/(userSettings)/BecomeDriver");
   };
 
   return (
@@ -164,12 +170,12 @@ const Home = () => {
             className="w-20 h-20 rounded-full"
           />
           <Text className="text-white text-lg font-bold mt-2">{user}</Text>
-          <Text className="text-white text-sm mt-1">⭐ 4.8</Text>
+          <Text className="text-white text-sm mt-1">⭐ {rating}</Text>
         </View>
 
         <View className="p-5">
           <TouchableOpacity
-            className="flex-row items-center mb-5"
+            className="flex-row items-center"
             onPress={navigationToConfig}
           >
             <Image source={icons.GreyUser} className="w-5 h-5" />
@@ -184,7 +190,10 @@ const Home = () => {
           </TouchableOpacity>
           <View className="mt-5 border-t border-gray-200" />
 
-          <TouchableOpacity className="flex-row items-center mt-5">
+          <TouchableOpacity
+            className="flex-row items-center mt-5"
+            onPress={navigateToBecomeDriver}
+          >
             <Image source={icons.Gear} className="w-5 h-5" />
             <Text className="text-base ml-2">Become a driver</Text>
           </TouchableOpacity>
